@@ -102,11 +102,10 @@ const StyledTableCell = withStyles((theme) => ({
     },
 }))(TableCell);
 
-export default function EnhancedTable() {
+export default function StudentList(props) {
     const classes = useStyles();
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('id');
-    const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rows, setRows] = React.useState([]);
     const [pagination, setPagination] = React.useState([]);
@@ -114,6 +113,7 @@ export default function EnhancedTable() {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
+        setPage(0);
     };
 
     useEffect(() => {
@@ -123,40 +123,17 @@ export default function EnhancedTable() {
             setRows(students);
             setPagination(meta.pagination);
         })
-    }, [page, order, orderBy])
+    }, [page, orderBy, order])
 
-    const handleSelectAllClick = (event) => {
-        if (event.target.checked) {
-            const newSelecteds = rows.map((n) => n.name);
-            setSelected(newSelecteds);
-            return;
-        }
-        setSelected([]);
-    };
-
-    const handleClick = (event, name) => {
-        const selectedIndex = selected.indexOf(name);
-        let newSelected = [];
-
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1),
-            );
-        }
-
-        setSelected(newSelected);
+    const handleClick = (event, id) => {
+        props.history.push(`/students/${id}`);
     };
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
+
+    const isLastPage = pagination.isOutOfRange || pagination.isLastPage
 
     return (
         <div className={classes.root}>
@@ -170,10 +147,8 @@ export default function EnhancedTable() {
                     >
                         <EnhancedTableHead
                             classes={classes}
-                            numSelected={selected.length}
                             order={order}
                             orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
                             rowCount={rows.length}
                         />
@@ -185,7 +160,7 @@ export default function EnhancedTable() {
                                     <TableRow
                                         className={classes.mousePointer}
                                         hover
-                                        onClick={(event) => handleClick(event, row.name)}
+                                        onClick={(event) => handleClick(event, row.id)}
                                         tabIndex={-1}
                                         key={row.name}
                                     >
@@ -204,8 +179,11 @@ export default function EnhancedTable() {
                 <TablePagination
                     component="div"
                     count={-1}
-                    nextIconButtonProps={{disabled: pagination.isOutOfRange || pagination.isLastPage}}
+                    nextIconButtonProps={{disabled: isLastPage}}
                     rowsPerPageOptions={[15]}
+                    labelDisplayedRows={({from, to, count}) => {
+                        return isLastPage ? `${from}-${to}` : `${from}-${to} of ${count !== -1 ? count : `more than ${to}`}`
+                    }}
                     rowsPerPage={15}
                     page={page}
                     onChangePage={handleChangePage}
