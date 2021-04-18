@@ -153,7 +153,7 @@ class StudentShow extends React.Component {
                 "name": this.state.student.name,
                 "enrollment_no": this.state.student.enrollmentNo,
                 "email": this.state.student.email,
-                "degree_id": this.state.student.degree.id,
+                "degree_id": this.state.student.degree ? this.state.student.degree.id : -1,
                 "course_ids": this.state.student.courses.map(course => course.id)
             }
         }).then((resp) => {
@@ -277,7 +277,7 @@ class StudentShow extends React.Component {
                         <Select
                             fullWidth
                             id={`${studentId}-degree`}
-                            value={student.degree.name}
+                            value={student.degree ? student.degree.name : null}
                             onChange={handleDegreeChange.bind(this)}
                         >
                             <MenuItem value={null}>
@@ -359,21 +359,33 @@ export function getHandleChange(field) {
 }
 
 export function handleDegreeChange(event) {
-    const degree = this.state.degrees.find(degree => event.target.value === degree.name)
-    this.setState({
-        ...this.state,
-        student: {
-            ...this.state.student,
-            degree: degree,
-            courses: []
-        }
-    })
-    api.get(`degrees/${degree.id}/courses`).then(({data}) => {
+    if (event.target.value) {
+        const degree = this.state.degrees.find(degree => event.target.value === degree.name)
         this.setState({
             ...this.state,
-            courses: data.courses,
+            student: {
+                ...this.state.student,
+                degree: degree,
+                courses: []
+            }
         })
-    })
+        api.get(`degrees/${degree.id}/courses`).then(({data}) => {
+            this.setState({
+                ...this.state,
+                courses: data.courses,
+            })
+        })
+    } else {
+        this.setState({
+            ...this.state,
+            courses: [],
+            student: {
+                ...this.state.student,
+                degree: null,
+                courses: []
+            }
+        })
+    }
 }
 
 export function handleCourseChange(event) {
@@ -392,7 +404,7 @@ export function handleCourseChange(event) {
     })
 }
 
-export function goBack(){
+export function goBack() {
     this.props.history.goBack()
 }
 

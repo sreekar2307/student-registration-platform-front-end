@@ -60,15 +60,16 @@ class StudentCreate extends React.Component {
                 "name": this.state.student.name,
                 "enrollment_no": this.state.student.enrollmentNo,
                 "email": this.state.student.email,
-                "degree_id": this.state.student.degree ? null : this.state.student.degree.id,
+                "degree_id": this.state.student.degree ? this.state.student.degree.id : null,
                 "course_ids": this.state.student.courses.map(course => course.id)
             }
-        }).then(() => {
+        }).then(({data}) => {
             this.setState({
                 ...this.state,
                 errors: null,
                 saving: false,
             })
+            this.props.history.push(`/students/${data.student.id}/`)
         }).catch(err => {
             this.setState({
                 ...this.state,
@@ -152,7 +153,7 @@ class StudentCreate extends React.Component {
                         <Select
                             fullWidth
                             id={`student-degree`}
-                            value={student.degree && student.degree.name}
+                            value={student.degree ? student.degree.name : null}
                             onChange={handleDegreeChange.bind(this)}
                         >
                             <MenuItem value={null}>
