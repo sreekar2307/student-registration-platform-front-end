@@ -12,7 +12,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
 import api from "../config/axios";
 import qs from "qs";
-import {withStyles} from "@material-ui/core";
+import {Chip, withStyles} from "@material-ui/core";
 
 
 const headCells = [
@@ -109,6 +109,7 @@ export default function StudentList(props) {
     const [page, setPage] = React.useState(0);
     const [rows, setRows] = React.useState([]);
     const [pagination, setPagination] = React.useState([]);
+    const [errors, setErrors] = React.useState(null);
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
@@ -122,6 +123,9 @@ export default function StudentList(props) {
             const {students, meta} = data;
             setRows(students);
             setPagination(meta.pagination);
+            setErrors(null);
+        }).catch(err => {
+            setErrors(err.response.data)
         })
     }, [page, orderBy, order])
 
@@ -134,7 +138,9 @@ export default function StudentList(props) {
     };
 
     const isLastPage = pagination.isOutOfRange || pagination.isLastPage
-
+    if (errors) {
+        return <Chip color="secondary" label={JSON.stringify(errors)}/>
+    }
     return (
         <div className={classes.root}>
             <Paper className={classes.paper}>
