@@ -19,7 +19,7 @@ const headCells = [
     {id: 'id', numeric: true, disablePadding: true, label: 'Id'},
     {id: 'email', numeric: false, disablePadding: false, label: 'Email Address'},
     {id: 'name', numeric: false, disablePadding: false, label: 'Student Name'},
-    {id: 'enrollmentNo', numeric: false, disablePadding: false, label: 'Enrollment Number'},
+    {id: 'enrollment_no', numeric: false, disablePadding: false, label: 'Enrollment Number'},
 ];
 
 function EnhancedTableHead(props) {
